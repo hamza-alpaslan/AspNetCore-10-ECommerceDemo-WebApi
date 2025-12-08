@@ -9,6 +9,7 @@ using System.Text;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Web.Security;
+using System.Threading.Tasks;
 namespace Web.Controllers
 {
     [Route("api/[controller]")]
@@ -21,12 +22,12 @@ namespace Web.Controllers
             _tokenService = tokenService;
         }
         [HttpPost("Login")]
-        public IActionResult Login([FromBody] UserLoginDto userLoginDto)
+        public async Task<IActionResult> Login([FromBody] UserLoginDto userLoginDto)
         {
             SilUserService userService = new SilUserService();
             var User= userService.UserExistensControl(userLoginDto);
             if (User == null) return BadRequest("User not found");
-            var Token = _tokenService.GenerateToken(User);
+            var Token = await _tokenService.GenerateToken(User);
             return Ok(Token);
         }
 

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Web.Security
@@ -11,6 +12,7 @@ namespace Web.Security
     public class TokenService : ITokenService
     {
         private readonly JwtSettings _jwtSettings;
+        //TODO: Constructur da user manager ı ata
         private readonly UserManager<ApplicationUser> _userManager;
 
         public TokenService(IOptions<JwtSettings> jwtSettings)
@@ -18,9 +20,13 @@ namespace Web.Security
             _jwtSettings = jwtSettings.Value;
 
         }
-        public Task<string> GenerateRefreshToken()
+        public async Task<string> GenerateRefreshToken()
         {
-            throw new NotImplementedException();
+            var randomNumber = new byte[64];
+            using var rng =RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            var refreshToken=Convert.ToBase64String(randomNumber);
+            return refreshToken;
         }
 
         public async Task<string> GenerateToken(ApplicationUser applicationUser)
