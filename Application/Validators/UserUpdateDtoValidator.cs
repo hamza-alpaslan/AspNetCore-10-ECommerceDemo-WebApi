@@ -13,21 +13,38 @@ namespace Application.Validators
             RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("User Id is required.");
 
-            RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Name is required.")
-                .MinimumLength(2);
+            When(x => x.Name != null, () =>
+            {
+                RuleFor(x => x.Name!)
+                    .NotEmpty()
+                    .MinimumLength(2);
+            });
 
-            RuleFor(x => x.LastName)
-                .NotEmpty().WithMessage("Last name is required.")
-                .MinimumLength(2);
+            When(x => x.LastName != null, () =>
+            {
+                RuleFor(x => x.LastName!)
+                    .NotEmpty()
+                    .MinimumLength(2);
+            });
 
-            RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email is required.")
-                .EmailAddress().WithMessage("Email format is invalid.");
+            When(x => x.Email != null, () =>
+            {
+                RuleFor(x => x.Email!)
+                    .EmailAddress().WithMessage("Email format is invalid.");
+            });
 
-            RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("Password is required.")
-                .MinimumLength(6).WithMessage("Password must be at least 6 characters.");
+            When(x => x.UserName != null, () =>
+            {
+                RuleFor(x => x.UserName!)
+                    .MinimumLength(3);
+            });
+
+            When(x => x.Password != null, () =>
+            {
+                RuleFor(x => x.Password!)
+                    .MinimumLength(6)
+                    .WithMessage("Password must be at least 6 characters.");
+            });
         }
     }
 }

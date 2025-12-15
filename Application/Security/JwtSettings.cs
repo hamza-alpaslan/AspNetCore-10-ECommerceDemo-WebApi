@@ -5,6 +5,7 @@
         public string Key { get; set; } = default!;
         public string Issuer { get; set; } = default!;
         public string Audience { get; set; } = default!;
-        public double ExpiresMinutes {  get; set; }  
+        public double AccessTokenExpiresMinutes {  get; set; } 
+        public double RefreshTokenExpiresDay {  get; set; }
     }
 }

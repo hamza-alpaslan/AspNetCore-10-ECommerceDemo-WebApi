@@ -8,11 +8,11 @@ namespace Application.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<UserGetDto?> GetByIdAsync(Guid userId);
+        Task<DataResult<UserGetDto>> GetByIdAsync(Guid userId);
         //Task<List<UserDto>> GetAllUsersAsync();
-        Task<UserLoginResponseDto> LoginAsync(UserLoginDto dto);
+        Task<DataResult<UserLoginResponseDto>> LoginAsync(UserLoginDto dto);
         public Task<DataResult<UserRegisterResponseDto>> UserRegisterAsync(UserRegisterDto userRegisterDto);
-        Task<UserUpdateResponseDto> UpdateAsync(UserUpdateDto dto);
-        Task<bool> DeleteAsync(string userId);
+        Task<Result> UpdateAsync(UserUpdateDto dto);
+        Task<Result> DeleteAsync(Guid userId);
     }
 }

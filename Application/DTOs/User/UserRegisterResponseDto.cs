@@ -4,5 +4,5 @@ using System.Text;
 
 namespace Application.DTOs.User
 {
-    public record UserRegisterResponseDto(string AccessToken);
+    public record UserRegisterResponseDto(string AccessToken,UserGetDto UserGetDto);
 }

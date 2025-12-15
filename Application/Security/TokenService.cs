@@ -11,7 +11,7 @@ namespace Web.Security
 {
     public class TokenService : ITokenService
     {
-        private readonly JwtSettings _jwtSettings;
+        public readonly JwtSettings _jwtSettings;
         //TODO: Constructur da user manager ı ata
         private readonly UserManager<ApplicationUser> _userManager;
 
@@ -41,7 +41,7 @@ namespace Web.Security
             var token = new JwtSecurityToken(_jwtSettings.Issuer,
                 _jwtSettings.Audience,
                 claimArry,
-                expires: DateTime.Now.AddMinutes(_jwtSettings.ExpiresMinutes),
+                expires: DateTime.Now.AddMinutes(_jwtSettings.AccessTokenExpiresMinutes),
                 signingCredentials: credentials
                 );
             return new JwtSecurityTokenHandler().WriteToken(token);
