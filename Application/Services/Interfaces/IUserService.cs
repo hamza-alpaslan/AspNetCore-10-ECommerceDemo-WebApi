@@ -12,7 +12,7 @@ namespace Application.Services.Interfaces
         //Task<List<UserDto>> GetAllUsersAsync();
         Task<DataResult<UserLoginResponseDto>> LoginAsync(UserLoginDto dto);
         public Task<DataResult<UserRegisterResponseDto>> UserRegisterAsync(UserRegisterDto userRegisterDto);
-        Task<Result> UpdateAsync(UserUpdateDto dto);
+        Task<DataResult<UserUpdateResponseDto>> UpdateAsync(UserUpdateDto dto);
         Task<Result> DeleteAsync(Guid userId);
     }
 }

@@ -20,6 +20,8 @@ namespace Web.Security
             _jwtSettings = jwtSettings.Value;
 
         }
+
+
         public async Task<string> GenerateRefreshToken()
         {
             var randomNumber = new byte[64];

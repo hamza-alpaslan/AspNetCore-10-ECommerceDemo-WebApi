@@ -131,33 +131,33 @@ namespace Application.Services.Implementations
             return DataResult<UserGetDto>.Ok(userGetDto);
         }
 
-        public async Task<Result> UpdateAsync(UserUpdateDto userUpdateDto)
+        public async Task<DataResult<UserUpdateResponseDto>> UpdateAsync(UserUpdateDto userUpdateDto)
         {
             //validation
             var validationResult = await _userUpdateDtoValidator.ValidateAsync(userUpdateDto);
             if (!validationResult.IsValid)
             {
                 var allErrors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-                return Result.Fail(allErrors);
+                return DataResult<UserUpdateResponseDto>.Fail(allErrors);
             }
             //business rules check
             if (userUpdateDto.Email != null && !userUpdateDto.Email.IsWhiteSpace())
             {
                 var emailExists = await _userManager.FindByEmailAsync(userUpdateDto.Email);
                 if (emailExists != null)
-                    return Result.Fail("Email is already taken.");
+                    return DataResult<UserUpdateResponseDto>.Fail("Email is already taken.");
             }
             if (userUpdateDto.UserName != null && userUpdateDto.UserName.IsWhiteSpace())
             {
                 var trimedUserName = userUpdateDto.UserName.Trim();
                 var userNameExists = await _userManager.FindByNameAsync(trimedUserName);
                 if (userNameExists != null)
-                    return Result.Fail("UserName is already taken.");
+                    return DataResult<UserUpdateResponseDto>.Fail("UserName is already taken.");
             }
             //User update
             var user=await _userManager.FindByIdAsync(userUpdateDto.Id.ToString());
             if (user == null)
-                return Result.Fail("User not found");
+                return DataResult<UserUpdateResponseDto>.Fail("User not found");
             if (userUpdateDto.Name != null)
                 user.Name = userUpdateDto.Name;
 
@@ -178,15 +178,18 @@ namespace Application.Services.Implementations
 
                 if (!passwordResult.Succeeded)
                 {
-                    return Result.Fail("Password update fail");
+                    return DataResult<UserUpdateResponseDto>.Fail("Password update fail");
                 }
             }
 
             // Normal update
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
-                return Result.Fail("Fail to update");
-            return Result.Ok();
+                return DataResult<UserUpdateResponseDto>.Fail("Fail to update");
+
+            var userGetDto=_mapper.Map<UserGetDto>(user);
+            var updateResponseDto = new UserUpdateResponseDto(userGetDto);
+            return DataResult<UserUpdateResponseDto>.Ok(updateResponseDto);
 
         }
         //check the resresh token and generate new access token
@@ -203,6 +206,23 @@ namespace Application.Services.Implementations
 
             var accessToken = await _tokenService.GenerateToken(user);
             return DataResult<string>.Ok(accessToken);
+        }
+        public async Task<Result> RefreshTokenRevoke(string refreshToken)
+        {
+            using var sha256 = SHA256.Create();
+            var refreshTokenHash = sha256.ComputeHash(Encoding.UTF8.GetBytes(refreshToken));
+            var hashedRefreshToken = Convert.ToBase64String(refreshTokenHash);
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == hashedRefreshToken);
+            if (user == null) return Result.Fail("Invalid refresh token");
+            if (user.RefreshTokenExpiryTime < DateTime.Now)
+                return DataResult<string>.Fail("Refresh token expired");
+
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = null;
+            var result= await _userManager.UpdateAsync(user);
+            if (!result.Succeeded) return Result.Fail("Fail to update user");
+            return Result.Ok();
         }
     }
 }
